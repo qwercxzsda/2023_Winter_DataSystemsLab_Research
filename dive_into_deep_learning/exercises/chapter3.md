@@ -32,6 +32,17 @@
 
 1. Prove that the affine functions that can be expressed by $\mathbf{x}^\top \mathbf{w} + b$ are equivalent to linear functions on $(\mathbf{x}, 1)$.
 1. Assume that you want to find quadratic functions of $\mathbf{x}$, i.e., $f(\mathbf{x}) = b + \sum_i w_i x_i + \sum_{j \leq i} w_{ij} x_{i} x_{j}$. How would you formulate this in a deep network?
+
+    Deep network with one hidden layer is sufficient. The channel of the hidden layer should be the same as the channel of the input layer. Hidden layer $z^{1}$ is expressed as follows.
+    $$
+        z^{1}_j = \sum_i z^{0}_i \theta^{1}_{ij} + b^{1}_j
+    $$
+    Where $z^{0}$ is the input layer. Output layer $z^{2}$ is expressed as follows.
+    $$
+        z^{2}_j = \sum_i z^{1}_i \theta^{2}_{ij} + b^{@}_j
+    $$
+    As a result, output layer can model the quadratic term.
+
 1. Recall that one of the conditions for the linear regression problem to be solvable was that the design matrix $\mathbf{X}^\top \mathbf{X}$ has full rank.
     1. What happens if this is not the case?
     1. How could you fix it? What happens if you add a small amount of coordinate-wise independent Gaussian noise to all entries of $\mathbf{X}$?
