@@ -27,3 +27,24 @@ $$
     \quad \textrm{where}\quad
     l(\mathbf{y^{(i)}}, \hat{\mathbf{y}}^{(i)}) = - \sum_{j=1}^q y^{(i)}_j \log \hat{y}^{(i)}_j
 $$
+
+## 4.4. Softmax Regression Implementation from Scratch
+
+### 4.4.3. The Cross-Entropy Loss
+
+```python
+y = torch.tensor([0, 2])
+y_hat = torch.tensor([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
+y_hat[[0, 1], y]
+```
+
+The result of the above code is `tensor([y_hat[0][0], y_hat[1][2]])`.
+
+As a result, cross entropy $E[l(\mathbf{y^{(i)}}, \hat{\mathbf{y}}^{(i)})]$ is calculated as follows.
+
+```python
+def cross_entropy(y_hat, y):
+    return -torch.log(y_hat[list(range(len(y_hat))), y]).mean()
+```
+
+To be precise, $i^{th}$ term of `-torch.log(y_hat[list(range(len(y_hat))), y])` is the term $l(\mathbf{y^{(i)}}, \hat{\mathbf{y}}^{(i)}) = - \sum_{j=1}^q y^{(i)}_j \log \hat{y}^{(i)}_j$.
