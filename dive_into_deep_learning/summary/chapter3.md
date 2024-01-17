@@ -51,3 +51,25 @@ Training error is an error on the training set. Generalization error is an error
 Underfitting is when the training error is large and the generalization gap is small. The reason is that the model is too simple.
 
 Overfitting is when the training error is small and the generalization gap is large. The reason is that the training set size is too small.
+
+## 3.7. Weight Decay
+
+Weight decay is a common way to mitigate overfitting.
+
+### 3.7.1. Norms and Weight Decay
+
+This method is also called $\ell_2$ regularization. This is because we add the $\ell_2$ norm of the weights to the loss function. The new loss function is as follows.
+
+$$
+    L(\mathbf{w}, b) + \frac{\lambda}{2} \|\mathbf{w}\|^2
+    \quad \textrm{where} \quad
+    L(\mathbf{w}, b) = \frac{1}{n}\sum_{i=1}^n \frac{1}{2}\left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right)^2
+$$
+
+The new update rule is quite simple.
+
+$$\begin{aligned}
+    \mathbf{w} & \leftarrow \left(1- \eta\lambda \right) \mathbf{w} - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \mathbf{x}^{(i)} \left(\mathbf{w}^\top \mathbf{x}^{(i)} + b - y^{(i)}\right)
+\end{aligned}$$
+
+As we need to access the original weights when updating the weights, the additional computational cost by the weight decay is negligible.
