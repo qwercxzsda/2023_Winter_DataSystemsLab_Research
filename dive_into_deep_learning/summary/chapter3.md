@@ -35,3 +35,7 @@ $$
 ### 3.1.2. Vectorization for Speed
 
 Vectorized code is much faster than for-loops.
+
+## 3.2. Object-Oriented Design for Implementation
+
+We use class inheritance to simplify making new models. For example, we inherit from `nn.Module` when we create a new model. This way, we only need to override the definition of `__init__` and `forward` for the model to work correctly.
