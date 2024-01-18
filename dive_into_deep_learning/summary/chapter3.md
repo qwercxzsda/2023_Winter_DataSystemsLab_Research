@@ -39,3 +39,15 @@ Vectorized code is much faster than for-loops.
 ## 3.2. Object-Oriented Design for Implementation
 
 We use class inheritance to simplify making new models. For example, we inherit from `nn.Module` when we create a new model. This way, we only need to override the definition of `__init__` and `forward` for the model to work correctly.
+
+## 3.6. Generalization
+
+### 3.6.1. Training Error and Generalization Error
+
+Training error is an error on the training set. Generalization error is an error on the unseen data. Our objective is to minimize the Generalization error.
+
+### 3.6.2. Underfitting or Overfitting?
+
+Underfitting is when the training error is large and the generalization gap is small. The reason is that the model is too simple.
+
+Overfitting is when the training error is small and the generalization gap is large. The reason is that the training set size is too small.
