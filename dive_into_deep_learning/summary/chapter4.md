@@ -89,3 +89,69 @@ To deal with the generalization problem, there is a concept called `uniform conv
 In other words, we seek a theoretical principle that would allow us to state that with probability at least $1-\delta$ (for some small $\delta$) no classifier's error rate $\epsilon(f)$ (among all classifiers in the class $\mathcal{F}$) will be misestimated by more than some small amount $\alpha$. Clearly, this does not hold for all model classes $\mathcal{F}$. The class of memorization machines is a counterexample.
 
 There is a theory by Vapnik and Chervonenkis called `VC dimension` that can estimate the sample size needed to achieve uniform convergence(but the estimated sample size is much bigger than the actual size).
+
+## 4.7. Environment and Distribution Shift
+
+### 4.7.1. Types of Distribution Shift
+
+The distribution shift is illustrated as follows. Our training data was sampled from some distribution $p_S(\mathbf{x},y)$, but our test data was sampled from a different distribution $p_T(\mathbf{x},y)$.
+
+#### 4.7.1.1. Covariate Shift
+
+Covariate shift is the most widely studied type of distribution shift. Here, we assume the following
+
+1. The distribution of inputs $P(\mathbf{x})$ may change over time.
+2. The labeling function, conditional distribution $P(y \mid \mathbf{x})$, does not change.
+
+This is called covariate shift because the problem arises due to a shift in the distribution of the covariates (features). Covariate shift is the natural assumption to invoke in settings where we believe that $\mathbf{x}$ causes $y$.
+
+#### 4.7.1.2. Label Shift
+
+Label shift describes the converse problem. Here, we assume the following. 
+
+1. The label marginal $P(y)$ can change.
+1. The class-conditional distribution $P(\mathbf{x} \mid y)$ remains fixed across domains.
+
+Label shift is a reasonable assumption to make when we believe that $y$ causes $\mathbf{x}$.
+
+For example, we may want to predict diagnoses given their symptoms (or other manifestations), even as the relative prevalence of diagnoses is changing over time. Label shift is the appropriate assumption here because diseases cause symptoms.
+
+#### 4.7.1.3. Concept Shift
+
+In concept shift, we assume that the very definitions of labels can change.
+
+For example, the definition of soft drinks differs among different regions in the United States.
+
+### 4.7.2. Examples of Distribution Shift
+
+#### 4.7.2.1. Medical Diagnostics
+
+The distributions that gave rise to the training data and those you will encounter in the wild might differ considerably. In short, it is harder to obtain blood samples from healthy men than from sick patients.
+
+Soliciting blood donations from students on a university campus to serve as healthy controls will not work, as it will cause a covariate shift. The classifier will learn to distinguish between students and patients, rather than between healthy and sick patients.
+
+#### 4.7.2.2. Tank Detection
+
+The US Army tried to detect tanks in the forest using machine learning. They took aerial photographs of the forest without tanks, then drove the tanks into the forest and took another set of pictures. The classifier appeared to work perfectly. Unfortunately, it had merely learned how to distinguish trees with shadows from trees without shadows—the first set of pictures was taken in the early morning, the second set at noon.
+
+### 4.7.3. Correction of Distribution Shift
+
+#### 4.7.3.1. Empirical Risk and Risk
+
+In the training phase, we try to minimize the `empirical risk`, an average loss over the training data for approximating `risk`.
+
+$$
+    \mathop{\mathrm{minimize}}_f \frac{1}{n} \sum_{i=1}^n l(f(\mathbf{x}_i), y_i)
+$$
+
+`risk` is the expectation of the loss over the entire population of data drawn from their true distribution $p(\mathbf{x},y)$.
+
+$$
+    E_{p(\mathbf{x}, y)} [l(f(\mathbf{x}), y)] = \int\int l(f(\mathbf{x}), y) p(\mathbf{x}, y) \;d\mathbf{x}dy
+$$
+
+However, in practice, we typically cannot obtain the entire population of data. Thus, we minimize the empirical risk instead with the hope of approximately minimizing the risk.
+
+#### 4.7.3.2. Covariate Shift Correction
+
+
