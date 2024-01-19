@@ -116,3 +116,31 @@ However, there are many reasons to factorize text in the same direction in which
 For an observed sequence $x_1, \ldots, x_t$, predicting the output $\hat{x}_{t+k}$ at time step $t+k$ is called the $k$*-step-ahead prediction*.
 
 As $k$ increases, errors accumulate and the quality of the prediction degrades, often dramatically.
+
+## 9.2. Converting Raw Text into Sequence Data
+
+We often use text data represented as sequences of words. Typical preprocessing pipelines execute the following steps:
+
+1. Split the strings into tokens (e.g., words or characters).
+
+1. Build a vocabulary dictionary to associate each vocabulary element with a numerical index.
+
+1. Convert the text into sequences of numerical indices.
+
+### 9.2.2. Tokenization
+
+Tokens are the atomic (indivisible) units of text. Each time step corresponds to 1 token.
+
+Dividing words into tokens is a design choice. For example, we can use every word as a token(large vocabulary), or we can use each character as a token(small vocabulary).
+
+### 9.2.3. Vocabulary
+
+The inputs to the models must be numerical.
+
+Thus, we need to construct a `vocabulary`. i.e., objects that associate each distinct token value with a unique index.
+
+1. We determine the set of unique tokens in our training `corpus`.
+
+1. We assign a numerical index to each unique token
+
+    Rare vocabulary elements are often dropped. Whenever we encounter a token not in the vocabulary(at training or test time), we represent it by a special `<unk>` token, signifying that this is an unknown value.
