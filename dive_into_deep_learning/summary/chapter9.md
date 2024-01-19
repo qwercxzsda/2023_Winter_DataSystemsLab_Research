@@ -144,3 +144,143 @@ Thus, we need to construct a `vocabulary`. i.e., objects that associate each dis
 1. We assign a numerical index to each unique token
 
     Rare vocabulary elements are often dropped. Whenever we encounter a token not in the vocabulary(at training or test time), we represent it by a special `<unk>` token, signifying that this is an unknown value.
+
+## 9.3. Language Models
+
+We can map text sequences into tokens. The tokens in a text sequence of length $T$ are in turn $x_1, x_2, \ldots, x_T$. `language model` estimates the joint probability:
+
+$$
+    P(x_1, x_2, \ldots, x_T)
+$$
+
+### 9.3.1. Learning Language Models
+
+We can model the probability of a sequence of tokens as follows.
+
+$$
+    P(x_1, x_2, \ldots, x_T) = \prod_{t=1}^T P(x_t  \mid  x_1, \ldots, x_{t-1})
+$$
+
+#### 9.3.1.1. Markov Models and $n$-grams
+
+We can apply Markov models to language modeling by assuming that the probability of a word only depends on the previous $n-1$ words.
+
+$$
+    \begin{aligned}
+    P(x_1, x_2, x_3, x_4) &=  P(x_1) P(x_2) P(x_3) P(x_4),\\
+    P(x_1, x_2, x_3, x_4) &=  P(x_1) P(x_2  \mid  x_1) P(x_3  \mid  x_2) P(x_4  \mid  x_3),\\
+    P(x_1, x_2, x_3, x_4) &=  P(x_1) P(x_2  \mid  x_1) P(x_3  \mid  x_1, x_2) P(x_4  \mid  x_2, x_3).
+    \end{aligned}
+$$
+
+The above are examples of unigram($n=1$), bigram($n=2$), and trigram($n=3$) models, respectively.
+
+#### 9.3.1.2. Word Frequency
+
+We can estimate the probability of words by counting numbers in a text corpus. e.g.,
+
+$$
+    \hat{P}(\textrm{learning} \mid \textrm{deep}) = \frac{n(\textrm{deep, learning})}{n(\textrm{deep})}
+$$
+
+where $n(x)$ and $n(x, x')$ are the number of occurrences of singletons and consecutive word pairs, respectively.
+
+However, for some unusual word combinations, it is tricky to find enough occurrences to get accurate estimates(especially in three-word or longer combinations). Thus, we need a solution to assign such word combinations a nonzero count.
+
+#### 9.3.1.3. Laplace Smoothing
+
+A common solution to the above problem is to perform some form of `Laplace smoothing`. i.e., add a small constant to all counts.
+
+$n$ is the total number of words in the training set and $m$ is the number of unique words.
+
+$$
+    \begin{aligned}
+        \hat{P}(x) & = \frac{n(x) + \epsilon_1/m}{n + \epsilon_1}, \\
+        \hat{P}(x' \mid x) & = \frac{n(x, x') + \epsilon_2 \hat{P}(x')}{n(x) + \epsilon_2}, \\
+        \hat{P}(x'' \mid x,x') & = \frac{n(x, x',x'') + \epsilon_3 \hat{P}(x'')}{n(x, x') + \epsilon_3}
+    \end{aligned}
+$$
+
+where $\epsilon_1,\epsilon_2$, and $\epsilon_3$ are hyperparameters that control how much smoothing will be applied(larger means more smoothing).
+
+However, Laplace smoothing has a few drawbacks.
+
+1. Many $n$-grams occur very rarely.
+
+    Thus, Laplace smoothing is rather unsuitable for language modeling.
+
+1. We need to store all counts.
+
+1. The meaning of the words is ignored.
+
+   For instance, “cat” and “feline” should occur in related contexts. We cannot adjust such models(word frequency + Laplace smoothing) to additional contexts.
+
+1. Long word sequences are almost certain to be novel.
+
+    Hence, it is insufficient to simply count the frequency of previously seen word sequences.
+
+We will use deep learning to address these drawbacks.
+
+### 9.3.2. Perplexity
+
+We can measure the quality of a language model by its `perplexity`. The concept of perplexity originates from information theory.
+
+Given a sentence, a language model can assign a probability of the likeliness of the sentence to occur.
+
+$$
+    \textrm{perplexity}(x_1 \ldots, x_t)
+    = P(x_1, \ldots, x_T)^{-\frac{1}{T}}
+$$
+
+$\sqrt{T}$ is to compensate for longer sentences having lower probability.
+
+Perplexity can also be written as follows.
+
+$$
+    \textrm{perplexity}(x_1 \ldots, x_t) =
+    \exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\right)
+$$
+
+Thus, perplexity can be understood as the geometric mean of the probabilities of each token.
+
+Let me assume a correct sentence(in the test set). The lower the perplexity, the higher the probability assigned by the model, thus, the better the model. To be more specific, the following holds.
+
+1. Best case: the model always perfectly estimates the probability of the target token as 1.
+
+   The perplexity of the model is 1.
+
+2. Worst case: the model always predicts the probability of the target token as 0.
+
+   The perplexity is positive infinity
+
+3. Baseline: the model predicts a uniform distribution over all the available tokens of the vocabulary.
+
+   The perplexity equals the number of unique tokens of the vocabulary.
+    $$
+        \begin{aligned}
+        &\textrm{perplexity}(x_1 \ldots, x_t)\\
+        &= \exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\right)\\
+        &= \exp\left(-\frac{1}{n} \sum_{t=1}^n \log \frac{1}{|V|}\right)\\
+        &= \exp\left(\log |V|\right)\\
+        &= |V|
+        \end{aligned}
+    $$
+
+    This provides a nontrivial upper bound that any useful model must beat.
+
+### 9.3.3. Partitioning Sequences
+
+We can partition the original sequence into subsequences to obtain more training examples. Let us denote a single input sequence $\mathbf{x}$, starting from token $x_t$ at time step $t$, as follows.
+$$
+    \mathbf x_t = [x_t, \ldots, x_{t+n-1}]
+$$
+
+Then, we can obtain $m$ partitioned subsequences $\mathbf x_d, \mathbf x_{d+n}, \ldots, \mathbf x_{d+n(m-1)}.$
+
+For language modeling,
+the goal is to predict the next token based on the tokens we have seen so far; hence the targets (labels) are the original sequence, shifted by one token.
+The target sequence for any input sequence $\mathbf x_t$
+is $\mathbf x_{t+1}$ with length $n$.
+
+![Example of input and output sequence.](images/9.3.1.input_and_output_sequence_example.svg)
+![example of input and output sequence](imgs/9.3.1.input_and_output_sequence_example.svg)
