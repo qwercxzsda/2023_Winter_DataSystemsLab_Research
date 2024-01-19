@@ -283,4 +283,38 @@ The target sequence for any input sequence $\mathbf x_t$
 is $\mathbf x_{t+1}$ with length $n$.
 
 ![Example of input and output sequence.](images/9.3.1.input_and_output_sequence_example.svg)
-![example of input and output sequence](imgs/9.3.1.input_and_output_sequence_example.svg)
+
+## 9.4. Recurrent Neural Networks
+
+Using the modeling $P(x_t \mid x_{t-1}, \ldots, x_{t-n+1})$ for language modeling is not ideal. Thus, we use a latent variable model,
+
+$$P(x_t \mid x_{t-1}, \ldots, x_1) \approx P(x_t \mid h_{t-1})$$
+$$h_t = f(x_{t}, h_{t-1})$$
+
+where $h_{t-1}$ is a `hidden state` that stores the sequence information up to time step $t-1$.
+
+The hidden state at any time step $t$ is computed based on both the current input $x_{t}$ and the previous hidden state $h_{t-1}$.
+
+`Recurrent neural networks` (RNNs) are neural networks using the above modeling.
+
+### 9.4.2. Recurrent Neural Networks with Hidden States
+
+The network can be expressed as follows.
+
+$$\mathbf{H}_t = \phi(\mathbf{X}_t \mathbf{W}_{\textrm{xh}} + \mathbf{H}_{t-1} \mathbf{W}_{\textrm{hh}}  + \mathbf{b}_\textrm{h})$$
+
+$$\mathbf{O}_t = \mathbf{H}_t \mathbf{W}_{\textrm{hq}} + \mathbf{b}_\textrm{q}$$
+
+Where $\mathbf{X}_t \in \mathbb{R}^{n \times d}$, $\mathbf{H}_t  \in \mathbb{R}^{n \times h}$. In other words, for a minibatch of $n$ sequence examples, each row of $\mathbf{X}_t$ corresponds to one example at time step $t$ from the sequence.
+
+Parameters of the RNN include the weights $\mathbf{W}_{\textrm{xh}} \in \mathbb{R}^{d \times h}, \mathbf{W}_{\textrm{hh}} \in \mathbb{R}^{h \times h}$, and the bias $\mathbf{b}_\textrm{h} \in \mathbb{R}^{1 \times h}$ of the hidden layer, together with the weights $\mathbf{W}_{\textrm{hq}} \in \mathbb{R}^{h \times q}$ and the bias $\mathbf{b}_\textrm{q} \in \mathbb{R}^{1 \times q}$ of the output layer.
+
+![An RNN with hidden states.](images/9.4.1.RNN_with_hidden_states.svg)
+
+Even at different time steps, RNNs always use the same model parameters. Therefore, the parametrization cost of an RNN does not grow as the number of time steps increases.
+
+### 9.4.3. RNN-Based Character-Level Language Models
+
+![Fig. 9.4.2 A character-level language model based on the RNN. The input and target sequences are “machin” and “achine”, respectively.](images/9.4.2.character_level_RNN.svg)
+
+## 
