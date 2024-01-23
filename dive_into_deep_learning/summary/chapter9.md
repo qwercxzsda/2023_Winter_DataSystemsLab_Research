@@ -317,4 +317,14 @@ Even at different time steps, RNNs always use the same model parameters. Therefo
 
 ![Fig. 9.4.2 A character-level language model based on the RNN. The input and target sequences are “machin” and “achine”, respectively.](images/9.4.2.character_level_RNN.svg)
 
-## 
+## 9.5. Recurrent Neural Network Implementation from Scratch
+
+### 9.5.2. RNN-Based Language Model
+
+#### 9.5.2.1. One-Hot Encoding
+
+Each token is represented by a numerical index indicating the position in the vocabulary of the corresponding word/character/word piece. You might be tempted to build a neural network where the index could be fed in as a scalar value. But this does not quite make sense. The $45^{\textrm{th}}$ and $46^{\textrm{th}}$ words may be "their" and "said", whose meanings are not remotely similar. Thus, we use one-hot encoding to represent the input.
+
+### 9.5.3. Gradient Clipping
+
+
