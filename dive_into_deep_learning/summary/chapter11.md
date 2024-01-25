@@ -121,3 +121,37 @@ $$
 In the attention, we used $\mathbf{s}_{t' - 1}$ as the query, and $\mathbf{h}_{t}$ as both the key and the value.
 
 ![Layers in an RNN encoder–decoder model with the Bahdanau attention mechanism.](images/11.4.2.seq2seq-details-attention.svg)
+
+## 11.5. Multi-Head Attention
+
+Given the same set of queries, keys, and values we may want our model to combine knowledge, such as capturing dependencies of various ranges(e.g., shorter-range vs. longer-range) within a sequence.
+
+Thus, we want our attention mechanism to jointly use different representation subspaces of queries, keys, and values.
+
+Queries, keys, and values can be transformed with $h$ independently learned linear projections. These $h$ projected queries, keys, and values are fed into attention pooling in parallel. In the end, $h$ attention-pooling outputs
+are concatenated and transformed with another learned linear projection to produce the final output.
+
+This design is called `multi-head attention`, where each of the $h$ attention pooling outputs is the `head`.
+
+![Multi-head attention, where multiple heads are concatenated, then linearly transformed.](images/11.5.1.multi-head-attention.svg)
+
+The above figure uses fully connected layers to perform learnable linear transformations.
+
+### 11.5.1. Model
+
+Given a query $\mathbf{q} \in \mathbb{R}^{d_q}$, a key $\mathbf{k} \in \mathbb{R}^{d_k}$, and a value $\mathbf{v} \in \mathbb{R}^{d_v}$, each attention head $\mathbf{h}_i$  ($i = 1, \ldots, h$)
+is computed as follows.
+
+$$
+    \mathbf{h}_i = f(\mathbf W_i^{(q)}\mathbf q, \mathbf W_i^{(k)}\mathbf k,\mathbf W_i^{(v)}\mathbf v) \in \mathbb R^{p_v}
+$$
+
+where  $\mathbf W_i^{(q)}\in\mathbb R^{p_q\times d_q}$, $\mathbf W_i^{(k)}\in\mathbb R^{p_k\times d_k}$, and $\mathbf W_i^{(v)}\in\mathbb R^{p_v\times d_v}$ are learnable parameters and $f$ is attention pooling, such as additive attention and scaled dot product attention.
+
+The multi-head attention output is another linear transformation via learnable parameters $\mathbf W_o\in\mathbb R^{p_o\times h p_v}$ of the concatenation of $h$ heads.
+
+$$
+    \mathbf W_o \begin{bmatrix}\mathbf h_1\\\vdots\\\mathbf h_h\end{bmatrix} \in \mathbb{R}^{p_o}
+$$
+
+Based on this design, each head may attend to different parts of the input. Thus, more sophisticated functions than the simple weighted average can be expressed.
