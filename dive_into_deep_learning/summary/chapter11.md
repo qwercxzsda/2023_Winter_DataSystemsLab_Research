@@ -155,3 +155,92 @@ $$
 $$
 
 Based on this design, each head may attend to different parts of the input. Thus, more sophisticated functions than the simple weighted average can be expressed.
+
+## 11.6. Self-Attention and Positional Encoding
+
+### 11.6.1. Self-Attention
+
+Given a sequence of input tokens
+$\mathbf{x}_1, \ldots, \mathbf{x}_n$ where any $\mathbf{x}_i \in \mathbb{R}^d$ ($1 \leq i \leq n$),
+its self-attention outputs
+a sequence of the same length
+$\mathbf{y}_1, \ldots, \mathbf{y}_n$,
+where
+
+$$\mathbf{y}_i = f(\mathbf{x}_i, (\mathbf{x}_1, \mathbf{x}_1), \ldots, (\mathbf{x}_n, \mathbf{x}_n)) \in \mathbb{R}^d$$
+
+according to the definition of attention.
+
+Using multi-head attention, the following code snippet
+computes the self-attention of a tensor with shape (batch size, number of time steps or sequence length in tokens, $d$). The output tensor has the same shape.
+
+### 11.6.2. Comparing CNNs, RNNs, and Self-Attention
+
+![Comparing CNN (padding tokens are omitted), RNN, and self-attention architectures.](images/11.6.1.cnn-rnn-self-attention.svg)
+
+Let's regard any text sequence as a "one-dimensional image". Similarly, one-dimensional CNNs can process local features such as $n$-grams in text. Given a sequence of length $n$, consider a convolutional layer whose kernel size is $k$, and whose numbers of input and output channels are both $d$. The computational complexity of the convolutional layer is $\mathcal{O}(knd^2)$. There are $\mathcal{O}(1)$ sequential operations and the maximum path length is $\mathcal{O}(n/k)$. For example, $\mathbf{x}_1$ and $\mathbf{x}_5$ are within the receptive field of a two-layer CNN
+with kernel size 3.
+
+When updating the hidden state of RNNs,
+multiplication of the $d \times d$ weight matrix
+and the $d$-dimensional hidden state has 
+a computational complexity of $\mathcal{O}(d^2)$.
+Since the sequence length is $n$,
+the computational complexity of the recurrent layer
+is $\mathcal{O}(nd^2)$.
+There are $\mathcal{O}(n)$ sequential operations
+that cannot be parallelized
+and the maximum path length is also $\mathcal{O}(n)$.
+
+In self-attention,
+the queries, keys, and values 
+are all $n \times d$ matrices.
+Consider the scaled dot product attention. $n \times d$ matrix is multiplied by
+a $d \times n$ matrix,
+then the output $n \times n$ matrix is multiplied
+by an $n \times d$ matrix.
+As a result,
+the self-attention
+has a $\mathcal{O}(n^2d)$ computational complexity.
+Each token is directly connected
+to any other token via self-attention.
+Therefore,
+computation can be parallel with $\mathcal{O}(1)$ sequential operations
+and the maximum path length is also $\mathcal{O}(1)$.
+
+All in all,
+both CNNs and self-attention enjoy parallel computation
+and self-attention has the shortest maximum path length.
+However, the quadratic computational complexity with respect to the sequence length
+makes self-attention prohibitively slow for very long sequences.
+
+### 11.6.3. Positional Encoding
+
+Self-attention by itself does not preserve the order of the sequence. So we need to inject some information about the position of each token in the sequence.
+
+The dominant approach for preserving 
+information about the order of tokens
+is to represent this to the model 
+as an additional input associated 
+with each token. 
+These inputs are called *positional encodings*,
+and they can either be learned or fixed *a priori*.
+We now describe a simple scheme for fixed positional encodings
+based on sine and cosine functions.
+
+Suppose that the input representation 
+$\mathbf{X} \in \mathbb{R}^{n \times d}$ 
+contains the $d$-dimensional embeddings 
+for $n$ tokens of a sequence.
+The positional encoding outputs
+$\mathbf{X} + \mathbf{P}$
+using a positional embedding matrix 
+$\mathbf{P} \in \mathbb{R}^{n \times d}$ of the same shape,
+whose element on the $i^\textrm{th}$ row 
+and the $(2j)^\textrm{th}$
+or the $(2j + 1)^\textrm{th}$ column is
+
+$$\begin{aligned} p_{i, 2j} &= \sin\left(\frac{i}{10000^{2j/d}}\right),\\p_{i, 2j+1} &= \cos\left(\frac{i}{10000^{2j/d}}\right).\end{aligned}$$
+
+![positional encoding](images/11.6.3.1.output_self-attention-and-positional-encoding_ce9eb6_78_0.svg)
+
