@@ -244,3 +244,55 @@ $$\begin{aligned} p_{i, 2j} &= \sin\left(\frac{i}{10000^{2j/d}}\right),\\p_{i, 2
 
 ![positional encoding](images/11.6.3.1.output_self-attention-and-positional-encoding_ce9eb6_78_0.svg)
 
+## 11.7. The Transformer Architecture
+
+The Transformer model is solely based on attention mechanisms without any convolutional or recurrent layer.
+
+![The Transformer architecture.](images/11.7.1.transformer.svg)
+
+As shown above, Transformer is an encoder-decoder architecture. The input (source) and output (target) sequence embeddings are added with positional encoding before being fed into the encoder and the decoder that stack modules based on self-attention.
+
+At a high level, the Transformer encoder is a stack of multiple identical layers, where each layer has two sublayers.
+
+1. multi-head self-attention pooling
+
+1. positionwise feed-forward network.
+
+Specifically,
+in the encoder self-attention,
+queries, keys, and values are all from the
+outputs of the previous encoder layer.
+Inspired by the ResNet design,
+a residual connection is employed
+around both sublayers.
+In the Transformer,
+for any input $\mathbf{x} \in \mathbb{R}^d$ at any position of the sequence,
+we require that $\textrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ so that
+the residual connection $\mathbf{x} + \textrm{sublayer}(\mathbf{x}) \in \mathbb{R}^d$ is feasible.
+This addition from the residual connection is immediately
+followed by layer normalization.
+As a result, the Transformer encoder outputs a $d$-dimensional vector representation
+for each position of the input sequence.
+
+The Transformer decoder is also a stack of multiple identical layers
+with residual connections and layer normalizations.
+As well as the two sublayers described in
+the encoder, the decoder inserts
+a third sublayer, known as
+the encoder--decoder attention,
+between these two.
+In the encoder--decoder attention,
+queries are from the
+outputs of the decoder's self-attention sublayer,
+and the keys and values are
+from the Transformer encoder outputs.
+In the decoder self-attention,
+queries, keys, and values are all from the
+outputs of the previous decoder layer.
+However, each position in the decoder is
+allowed only to attend to all positions in the decoder
+up to that position.
+This *masked* attention
+preserves the autoregressive property,
+ensuring that the prediction only depends
+on those output tokens that have been generated.
