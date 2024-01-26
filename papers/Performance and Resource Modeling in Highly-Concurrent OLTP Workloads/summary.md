@@ -45,3 +45,29 @@ We make several contributions towards modeling transactional workload, including
    We evaluate our models on a real database system, both using the well-known TPC-C benchmark and the real-life traces of Wikipedia, showing that we can predict the maximum throughput within 0-25% error.
 
    Additionally, we show that white-box models can avoid over-provisioning by at least 9× and predict disk I/O from 4× to 100× more accurately than simple black-box models when predicting resource utilization over a wide range of transaction rates.
+
+## 2. SOLUTION OVERVIEW
+
+In this paper, we focus on the problem of resource prediction. Given a set of transaction types (we describe our method for deriving these below) running at a certain rate (transactions per second, or TPS), with a certain mixture (fraction of each transaction type in the overall workload), the goal is to predict the CPU usage, disk I/O, minimum amount of RAM, network consumption, and time spent in lock contention.
+
+### 2.1 DBSeer Overview
+
+![Figure 1: Workflow in DBSeer.](images/Figure%201.%20Workflow%20in%20DBSeer..png)
+
+DBSeer consists of the following steps, shown in Figure 1.
+
+1. Collecting Logs.
+
+   We observe a DBMS during normal operation, i.e., running without modification in its production state. We collect standard SQL query logs, as well as various DBMS and OS statistics (over periods of hours or days).
+
+2. Preprocessing / Clustering.
+
+   We align (by time) and join the various logs, and extract a set of transaction types to categorize the types/classes of transactions that the system runs.
+
+3. Modeling.
+
+   We build white- and black-box models to predict the resource utilization (CPU, RAM, disk I/O, Locks, etc.) of the system for different mixes and rates of transaction types.
+
+All of our models accept a mixture $(f_1, ... f_J)$ and a target TPS $T$, where $f_i$ represents the fraction of the total transactions run from type $i$ and $J$ is the total number of types.
+
+We can observe the system can answer what-if and attribution questions about never-seen-before mixtures and rates.
