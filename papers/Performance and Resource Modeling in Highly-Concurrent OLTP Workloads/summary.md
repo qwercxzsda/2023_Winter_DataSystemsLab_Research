@@ -71,3 +71,67 @@ DBSeer consists of the following steps, shown in Figure 1.
 All of our models accept a mixture $(f_1, ... f_J)$ and a target TPS $T$, where $f_i$ represents the fraction of the total transactions run from type $i$ and $J$ is the total number of types.
 
 We can observe the system can answer what-if and attribution questions about never-seen-before mixtures and rates.
+
+## 3. PREPROCESSING
+
+### 3.1 Gathering the Log and Statistics
+
+1. The SQL statements and transactions executed by the system (that will be clustered using our clustering mechanism).
+
+2. The run-time(latency) of each transaction.
+
+3. Aggregate OS stats, including per-core CPU usage, number of I/O reads and writes, number of outstanding asynchronous I/Os, total network packets and bytes transferred, number of page faults, number of context switches, CPU and I/O usage.
+
+4. Global status variables from MySQL including the number of `SELECT`, `UPDATE`, `DELETE`, and `INSERT` commands executed, number of flushed and dirty pages, and the total lock wait-time.
+
+As we are focused on non-intrusive logging, we do not collect any statistics that significantly slow down performance, such as fine-grained locking information.
+
+### 3.2 Transaction Clustering
+
+#### Extracting Transaction Summaries
+
+`transaction summary` is defined as follows.
+
+$
+    [t_0(mode_1,table_1,n_1,t_1), \cdots, (mode_k, table_k, n_k, t_k)]
+$
+
+- $k$
+
+  The number of tables accessed by the transaction (e.g., if it accesses table a, then table b, and then again table a, we have k = 3)
+
+- $t_i$
+
+  $t_0$ is the time between the BEGIN and the first SQL statement.
+
+  $t_k$ is the time between the last SQL statement and the final `COMMIT`.
+  
+  For $1 \le i \lt k$, the time lag between the completion of the SQL statement causing the $i$’th access and the time that the $(i+1)$’th statement was issued. −1 when both the $i$’th and the $(i+1)$’th table accesses are caused by the same SQL statement.
+
+- $table_i$
+
+  The table accessed by the transaction.
+
+- $mode_i$
+
+  $w$ when accessing $table_i$ requires an exclusive lock (e.g. `DELETE`, `UPDATE`, `INSERT` or `SELECT...FOR UPDATE`).
+  
+  $r$ if the access requires a read-only/shared lock (e.g. general `SELECT`).
+
+- $n_i$
+
+  The approximate number of rows accessed from $table_i$.
+
+All of this information can be obtained from the SQL logs except the number of rows read or written from each table, which we estimate using the query rewriting technique described in Section 3.3.
+
+#### Learning Transaction Types
+
+Given the transaction summaries, we use the extracted features and apply the DBSCAN clustering algorithm to group individual transactions based on their accesses.
+
+The input data consists of one row per transaction. Each row contains a set of transaction features. The feature set consists of 2 attributes for each table in the database, one for the number of rows read from and one for the number of rows updated/inserted in each table (many of these features will be zero as most transactions do not access all the tables).
+
+The output of this clustering is a workload summary that lists the major transaction types (along with representative queries) and provides their frequencies in the base workload.
+
+### 3.3 Estimating Access Distributions
+
+Our second use of the logs is to infer a rough probability distribution over all the pages in the database by access (read or write) and by transaction type—this is used in our locking and I/O prediction models to estimate conflict and update probabilities.
