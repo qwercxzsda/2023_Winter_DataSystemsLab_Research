@@ -379,3 +379,16 @@ When a page is accessed, it is added to the head of $bp$ if it is not already pr
 Combining our cache and log rotation models, our I/O model predicts the following, given that we are running $n$ TPS for a time period $t$.
 - read: $C_{read} \cdot t \cdot n$ data pages
 - write-back: $C_{write} \cdot t \cdot n + F_t(n)$ data pages, in addition to any sequential log I/O.
+
+## 5. LOCK CONTENTION MODEL
+
+Given a mixture of concurrent transactions, we want to predict the expected delay. We develop a model of two-phase locking (2PL) for this purpose.
+
+### 5.1 A Summary of Thomasian’s 2PL Analysis
+
+- $D_1, \cdots, D_n$: The set of non-overlapping regions that consists of the database.
+- $C_1, \cdots, C_n$: The set of transaction classes.
+- $K_j$: The number of locks required by a transaction in class $C_j$. Thus, the transaction takes $K_j + 1$ steps to complete.
+- $S_{j,n}$: The mean processing times for the $n$’th step of a transaction of type $C_j$. The processing time is exponentially distributed.
+- $g_{j,n,i}$: The probability that a transaction of class $C_j$ access the $i$’th region in the $n$’th step $(\sum_{i=1}^I g_{j,n,i} = 1)$.
+- $U_{j,n}$: The mean delay incurred by a transaction from $C_j$ due to encountering a lock conflict at its $n$’th step.
