@@ -23,6 +23,7 @@ servers=server1
 # SQL credential necessary for middleware to gather the DBMS statistics (it uses "SHOW GLOBAL STATUS")
 db_host=localhost
 db_port=3400
+db_name=server1
 db_user=root
 db_pw=
 # you must be able to run monitor script remotely at server1 using the following configuration.
