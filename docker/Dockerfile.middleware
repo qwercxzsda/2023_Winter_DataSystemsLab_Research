@@ -1,0 +1,17 @@
+FROM ubuntu:22.04
+ 
+# java 1.7 is unavailable, so we use java 1.8
+RUN apt-get update && apt-get install -y\
+    git\
+    python2.7\
+    openjdk-8-jdk\
+    ant\
+    dstat
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+
+WORKDIR /root
+RUN git clone https://github.com/dongyoungy/dbseer_middleware.git
+WORKDIR /root/dbseer_middleware
+COPY ./middleware.cnf middleware.cnf
+RUN ant
+CMD [ "./middleware.sh" ]

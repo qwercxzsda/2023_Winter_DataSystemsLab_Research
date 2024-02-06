@@ -1,0 +1,32 @@
+[dbseer_middleware]
+# middleware user id
+id=dbseer
+# # middleware user password
+password=dbseer
+# port that middleware listens to for the communication with DBSeer
+listen_port=3555
+
+# path of the named pipe that dbseerroute uses to communicate with the middleware.
+named_pipe=/tmp/dbseerroute
+
+# middleware reads the SQL performance log from this file.
+dblog_path=/tmp/maxscale/perf.log
+
+# middleware writes OS/DBMS statistics of each server into separate files in this directory.
+syslog_dir=/tmp/maxscale
+
+# the list of MySQL/MariaDB servers
+servers=server1
+
+# server1 configuration start
+[server1]
+# SQL credential necessary for middleware to gather the DBMS statistics (it uses "SHOW GLOBAL STATUS")
+db_host=localhost
+db_port=3400
+db_user=root
+db_pw=
+# you must be able to run monitor script remotely at server1 using the following configuration.
+ssh_user=dyoon
+monitor_dir=/home/user/middleware/rs-sysmon2
+monitor_script=monitor.sh
+# server1 configuration end
