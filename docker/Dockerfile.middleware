@@ -1,14 +1,15 @@
 FROM ubuntu:22.04
- 
+
+RUN apt update && apt upgrade -y
+
+# dbseer_middleware dependencies
 # java 1.7 is unavailable, so we use java 1.8
-RUN apt-get update && apt-get install -y\
-    git\
-    python2.7\
-    openjdk-8-jdk\
-    ant\
-    dstat
+RUN apt update && apt install -y\
+    git curl\
+    python2.7 openjdk-8-jdk ant
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
 
+# build dbseer_middleware
 WORKDIR /root
 RUN git clone https://github.com/dongyoungy/dbseer_middleware.git
 WORKDIR /root/dbseer_middleware

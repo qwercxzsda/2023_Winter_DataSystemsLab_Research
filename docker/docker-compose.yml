@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  mysql1:
+    # image: mysql:5.7
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+    # ports:
+    #   - "3400:3306"
+    # volumes:
+    #   - ./mysql:/var/lib/mysql
+    restart: always
+
+  middleware:
+    depends_on:
+      - mysql1
+    build:
+      context: .
+      dockerfile: Dockerfile.middleware
+    platform: linux/amd64
+    restart: always

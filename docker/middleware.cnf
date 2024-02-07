@@ -21,13 +21,13 @@ servers=server1
 # server1 configuration start
 [server1]
 # SQL credential necessary for middleware to gather the DBMS statistics (it uses "SHOW GLOBAL STATUS")
-db_host=localhost
-db_port=3400
-db_name=server1
-db_user=root
-db_pw=
+db_host=mysql1
+db_port=3306
+db_name=test
+db_user=user
+db_pw=user
 # you must be able to run monitor script remotely at server1 using the following configuration.
 ssh_user=dyoon
-monitor_dir=/home/user/middleware/rs-sysmon2
+monitor_dir=/root/dbseer_middleware/rs-sysmon2
 monitor_script=monitor.sh
 # server1 configuration end
