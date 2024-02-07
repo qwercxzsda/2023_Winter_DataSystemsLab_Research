@@ -1,4 +1,18 @@
 FROM mysql:5.7
+
 RUN yum install -y\
-    git dstat
+    git openssh-server passwd
+
+# delete root password and allow root login without password
+RUN passwd -d root
+RUN sed -i'' -e's/^#PermitRootLogin prohibit-password$/PermitRootLogin yes/' /etc/ssh/sshd_config \
+        && sed -i'' -e's/^#PasswordAuthentication yes$/PasswordAuthentication yes/' /etc/ssh/sshd_config \
+        && sed -i'' -e's/^#PermitEmptyPasswords no$/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
+RUN ssh-keygen -A
+
+# download monitor_script that will be used by dbseer_middleware
 RUN git clone https://github.com/dongyoungy/dbseer_middleware.git /root/dbseer_middleware
+
+# run both sshd and mysqld
+ENTRYPOINT []
+CMD [ "sh", "-c", "/usr/sbin/sshd && docker-entrypoint.sh mysqld"]

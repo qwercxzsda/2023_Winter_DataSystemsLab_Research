@@ -27,7 +27,7 @@ db_name=test
 db_user=user
 db_pw=user
 # you must be able to run monitor script remotely at server1 using the following configuration.
-ssh_user=dyoon
+ssh_user=root
 monitor_dir=/root/dbseer_middleware/rs-sysmon2
 monitor_script=monitor.sh
 # server1 configuration end
