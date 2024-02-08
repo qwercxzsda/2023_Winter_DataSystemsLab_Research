@@ -13,6 +13,22 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
 RUN mkdir /root/.ssh
 RUN echo "StrictHostKeyChecking no" > /root/.ssh/config
 
+# MaxScale dependencies
+RUN apt update && apt install -y\
+    build-essential libssl-dev libaio-dev ncurses-dev bison \
+	cmake perl libtool librabbitmq-dev libcurl-dev libpcre3-dev \
+    dpkg-dev
+RUN apt update && apt install -y\
+    libmariadbclient-dev libmariadbd-dev
+
+# build MaxScale
+RUN git clone https://github.com/dongyoungy/MaxScale.git /root/MaxScale
+RUN mkdir /root/MaxScale/build
+WORKDIR /root/MaxScale/build
+RUN cmake ..
+RUN make
+RUN make install
+
 # build dbseer_middleware
 RUN git clone https://github.com/dongyoungy/dbseer_middleware.git /root/dbseer_middleware
 WORKDIR /root/dbseer_middleware
