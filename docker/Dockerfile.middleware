@@ -2,31 +2,37 @@ FROM ubuntu:14.04
 
 RUN apt update && apt upgrade -y
 
-# dbseer_middleware dependencies
+
+### dbseer_middleware dependencies ###
 # java 1.7 is unavailable, so we use java 1.8
-RUN apt update && apt install -y\
-    git curl\
+RUN apt update && apt install -y \
+    git curl \
     python2.7 openjdk-7-jdk ant
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+######
+
 
 # skip ssh host key checking
 RUN mkdir /root/.ssh
 RUN echo "StrictHostKeyChecking no" > /root/.ssh/config
 
-# MaxScale dependencies
+
+### MaxScale dependencies ###
 # download mariadb library (used in cmake)
 RUN curl --insecure -L -o root/mariadb-5.5.68-linux-systemd-x86_64.tar.gz \
     https://archive.mariadb.org/mariadb-5.5.68/bintar-linux-systemd-x86_64/mariadb-5.5.68-linux-systemd-x86_64.tar.gz
 # install mariadb library to /usr
 RUN tar -xzvf root/mariadb-5.5.68-linux-systemd-x86_64.tar.gz -C /usr
-
+# gcc 4.8 is installed by default on ubuntu 14.04
 RUN apt update && apt install -y\
     build-essential libssl-dev libaio-dev libncurses-dev bison \
-	cmake perl libtool librabbitmq-dev libcurl4-openssl-dev libpcre3-dev \
+    cmake perl libtool librabbitmq-dev libcurl4-openssl-dev libpcre3-dev \
     dpkg-dev \
     zlib1g-dev
+######
 
-# build MaxScale
+
+### build MaxScale ###
 RUN git clone https://github.com/dongyoungy/MaxScale.git /root/MaxScale
 RUN mkdir /root/MaxScale/build
 WORKDIR /root/MaxScale/build
@@ -39,10 +45,13 @@ RUN cmake .. \
     -DWITH_SCRIPTS=N -DWITH_MAXSCALE_CNF=N
 RUN make
 RUN make install
+######
 
-# build dbseer_middleware
+
+### build dbseer_middleware ###
 RUN git clone https://github.com/dongyoungy/dbseer_middleware.git /root/dbseer_middleware
 WORKDIR /root/dbseer_middleware
 COPY ./middleware.cnf middleware.cnf
 RUN ant
 CMD [ "./middleware.sh" ]
+######

@@ -1,13 +1,13 @@
 FROM mysql:5.7
 
-RUN yum install -y\
+RUN yum install -y \
     git openssh-server passwd
 
 # delete root password and allow root login without password
 RUN passwd -d root
 RUN sed -i'' -e's/^#PermitRootLogin prohibit-password$/PermitRootLogin yes/' /etc/ssh/sshd_config \
-        && sed -i'' -e's/^#PasswordAuthentication yes$/PasswordAuthentication yes/' /etc/ssh/sshd_config \
-        && sed -i'' -e's/^#PermitEmptyPasswords no$/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
+    && sed -i'' -e's/^#PasswordAuthentication yes$/PasswordAuthentication yes/' /etc/ssh/sshd_config \
+    && sed -i'' -e's/^#PermitEmptyPasswords no$/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
 RUN ssh-keygen -A
 
 # download monitor_script that will be used by dbseer_middleware
